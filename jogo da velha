@@ -1,0 +1,80 @@
+import tkinter as tk
+from tkinter import messagebox
+
+# Definindo as cores dos jogadores
+COR_X = "red"
+COR_O = "blue"
+
+# Função para verificar vitória
+def verificar_vitoria(tabuleiro, jogador):
+    for i in range(3):
+        if all([tabuleiro[i][j]["text"] == jogador for j in range(3)]) or \
+           all([tabuleiro[j][i]["text"] == jogador for j in range(3)]):
+            return True
+    if tabuleiro[0][0]["text"] == tabuleiro[1][1]["text"] == tabuleiro[2][2]["text"] == jogador or \
+       tabuleiro[0][2]["text"] == tabuleiro[1][1]["text"] == tabuleiro[2][0]["text"] == jogador:
+        return True
+    return False
+
+# Função para verificar empate (velha)
+def verificar_velha(tabuleiro):
+    for linha in tabuleiro:
+        for botao in linha:
+            if botao["text"] == "":
+                return False
+    return True
+
+# Função chamada quando um botão é pressionado
+def clicar(linha, coluna):
+    global jogador_atual, fim_jogo
+    if botoes[linha][coluna]["text"] == "" and not fim_jogo:
+        # Atualizando o texto do botão e a cor correspondente
+        botoes[linha][coluna]["text"] = jogador_atual
+        botoes[linha][coluna]["fg"] = COR_X if jogador_atual == "X" else COR_O
+
+        # Verificando vitória
+        if verificar_vitoria(botoes, jogador_atual):
+            messagebox.showinfo("Fim de jogo", f"Parabéns! Jogador {jogador_atual} venceu!")
+            fim_jogo = True
+            return
+        
+        # Verificando velha (empate)
+        if verificar_velha(botoes):
+            messagebox.showinfo("Fim de jogo", "Que pena, você perdeu! Deu velha!")
+            fim_jogo = True
+            return
+
+        # Alternando jogador
+        jogador_atual = "O" if jogador_atual == "X" else "X"
+
+# Função para reiniciar o jogo
+def reiniciar_jogo():
+    global jogador_atual, fim_jogo
+    jogador_atual = "X"
+    fim_jogo = False
+    for linha in range(3):
+        for coluna in range(3):
+            botoes[linha][coluna]["text"] = ""
+
+# Inicializando o jogo
+root = tk.Tk()
+root.title("Jogo da Velha com Cores")
+
+# Variáveis globais
+jogador_atual = "X"
+fim_jogo = False
+
+# Criando os botões
+botoes = [[None for _ in range(3)] for _ in range(3)]
+for i in range(3):
+    for j in range(3):
+        botoes[i][j] = tk.Button(root, text="", font=("Arial", 40), width=5, height=2,
+                                 command=lambda i=i, j=j: clicar(i, j))
+        botoes[i][j].grid(row=i, column=j)
+
+# Botão de reiniciar jogo
+reiniciar_btn = tk.Button(root, text="Reiniciar Jogo", font=("Arial", 20), command=reiniciar_jogo)
+reiniciar_btn.grid(row=3, column=0, columnspan=3)
+
+# Iniciando o loop principal do Tkinter
+root.mainloop()
